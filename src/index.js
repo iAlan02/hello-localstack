@@ -1,6 +1,4 @@
-exports.handler = async(event) => {
-    const name = event.name;
-
+exports.handler = async => {
     return {
         statusCode: 200,
         body: {
