@@ -1,0 +1,101 @@
+# Hello LocalStack
+
+Hello reader! 😊
+
+I've created this repository to let you know how does it feel to be Jeff Bezos, or something like that 🤣 because with this repository code you will have Amazon Web Services hosted in your local machine... sounds crazy? (╯°□°）╯︵ ┻━┻
+
+
+
+Well, first let me explain 🙂
+
+In order to understand and be able to give it a look you'll need to (instead having a million of dollars or enough to pay an AWS account) :
+
+* Docker basic knowledge
+
+* Amazon Web Services understanding
+
+* Maybe some Terraform or Infrastructure as Code
+
+* And a smiling face 😝 
+
+  
+
+I think that's it, let me know if I'm forgetting something ( ´･･)ﾉ(._.`)
+
+Now, maybe you also could need a little of JavaScript, but the code part is done so let's start. 
+
+## Coding Part
+
+Fort this exercise I created this small function: 
+![image-20210720194613173](C:\Users\alan_\AppData\Roaming\Typora\typora-user-images\image-20210720194613173.png)
+
+This will be our "Hello World" code, and as you can see O(∩_∩)O
+
+That's all the code we need 😁
+
+
+
+### Well, not at all...
+
+We need to have installed **Docker**, **Terraform** and **aws cli** in order to be able to make something cool with our code.
+
+
+
+Once you have those installed (or meanwhile gets installed) we can start writing our terraform scripts to create our AWS resources ヾ(≧▽≦*)o
+
+
+
+## Terraform 
+
+Let's create a folder for our terraform scripts and start...
+
+But first let's zip our code with a *file.tf*:
+
+![image-20210720195918628](C:\Users\alan_\AppData\Roaming\Typora\typora-user-images\image-20210720195918628.png)
+
+
+
+Now we need a **Role with a policy** for our lambda, we can just name this file as *iam.tf*:
+
+![image-20210720200154020](C:\Users\alan_\AppData\Roaming\Typora\typora-user-images\image-20210720200154020.png)
+
+
+
+Let's create our **AWS Lambda** function in our *lambda.tf*: 
+
+![image-20210720195955208](C:\Users\alan_\AppData\Roaming\Typora\typora-user-images\image-20210720195955208.png)
+
+**Note that we are indicating to our lambda to read the file we created and also attached the role*
+
+
+
+## Docker Compose 
+
+At this point we the installation should have been completed, and we can give a try for our **AWS local instance** (●ˇ∀ˇ●)
+
+We need to create a compose file, let's keep it in the root to make easier to access:
+![image-20210720200442709](C:\Users\alan_\AppData\Roaming\Typora\typora-user-images\image-20210720200442709.png)
+
+This file contains the main ingredient for our **Amazon Local Instance**! 
+
+What we are doing here is basically indicate which AWS resources we're creating to emulate (because we are emulating AWS, we don't have a super powerful computer to have a real local instance 😢), and also some other important indications that will allow to execute the lambda locally 😁
+
+Now it's matter to run **docker compose build**, go inside our terraform folder and run **terraform init**, **plan** and **apply** and just see how the magic happens...
+
+
+Once the lambda gets created we can run: 
+aws lambda invoke --function-name aws_hello_fc --endpoint=http://localhost:4566/ output.txt
+
+Where "aws_hello_fc" is the name of our lambda and "output.txt" is the file where the lambda's output (duh 🤦‍♂️) will be write.
+
+ 
+
+And that's how you can get Amazon Web services in your local machine 😊
+
+I leaved some other stuffs (just an **API Gateway** integration with the lambda) there, you can give it a try if you want, but please **READ THE DOCUMENTATION** (´▽`ʃ♡ƪ)
+
+
+Enjoy (￣y▽￣)╭ Ohohoho.....
+
+ ༼ つ ◕_◕ ༽つ
+
