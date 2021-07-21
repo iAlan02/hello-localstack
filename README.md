@@ -27,7 +27,7 @@ Now, maybe you also could need a little of JavaScript, but the code part is done
 ## Coding Part
 
 Fort this exercise I created this small function: 
-![image-20210720194613173](C:\Users\alan_\OneDrive\Documentos\my_local_stack\img\image-20210720194613173.png)
+![image-20210720194613173](img\image-20210720194613173.png)
 
 This will be our "Hello World" code, and as you can see O(∩_∩)O
 
@@ -51,19 +51,19 @@ Let's create a folder for our terraform scripts and start...
 
 But first let's zip our code with a *file.tf*:
 
-![image-20210720195918628](C:\Users\alan_\OneDrive\Documentos\my_local_stack\img\image-20210720195918628.png)
+![image-20210720195918628](img\image-20210720195918628.png)
 
 
 
 Now we need a **Role with a policy** for our lambda, we can just name this file as *iam.tf*:
 
-![image-20210720200154020](C:\Users\alan_\OneDrive\Documentos\my_local_stack\img\image-20210720200154020.png)
+![image-20210720200154020](img\image-20210720200154020.png)
 
 
 
 Let's create our **AWS Lambda** function in our *lambda.tf*: 
 
-![image-20210720195955208](C:\Users\alan_\OneDrive\Documentos\my_local_stack\img\image-20210720195955208.png)
+![image-20210720195955208](img\image-20210720195955208.png)
 
 **Note that we are indicating to our lambda to read the file we created and also attached the role*
 
@@ -74,7 +74,7 @@ Let's create our **AWS Lambda** function in our *lambda.tf*:
 At this point we the installation should have been completed, and we can give a try for our **AWS local instance** (●ˇ∀ˇ●)
 
 We need to create a compose file, let's keep it in the root to make easier to access:
-![image-20210720200442709](C:\Users\alan_\OneDrive\Documentos\my_local_stack\img\image-20210720200442709.png)
+![image-20210720200442709](img\image-20210720200442709.png)
 
 This file contains the main ingredient for our **Amazon Local Instance**! 
 
