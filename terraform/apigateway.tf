@@ -62,5 +62,5 @@ resource "aws_lambda_permission" "lambda_permission" {
 }
 
 output "endpoint" {
-  value = aws_api_gateway_deployment.hello-deployment.invoke_url
+  value = "http://localhost:4566/restapis/${aws_api_gateway_rest_api.hello-api.id}/test/_user_request_/"
 }
