@@ -3,8 +3,9 @@ services:
   localstack:
     image: localstack/localstack:latest
     ports:
-      - "4563-4586:4563-4586"
-      - "8055:8080"
+      - "127.0.0.1:4510-4559:4510-4559"
+      - "127.0.0.1:4566:4566"
+      - "127.0.0.1:4571:4571"
     environment:
       - SERVICES=s3,lambda,apigateway,iam
       - LAMBDA_EXECUTOR=docker_reuse
@@ -15,7 +16,7 @@ services:
       - PORT_WEB_UI=8080
       - LAMBDA_DOCKER_NETWORK=localstack-lambda-net
     volumes:
-      - "./.localstack:/tmp/locakstack/data"
+      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
     privileged: true
 volumes:
