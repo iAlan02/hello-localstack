@@ -1,4 +1,3 @@
-version: "3.5"
 services:
   localstack:
     image: localstack/localstack:latest
@@ -12,15 +11,17 @@ services:
       - DOCKER_HOST=unix:///var/run/docker.sock
       - DEFAULT_REGION=eu-west-1
       - DEBUG=1
-      - DATA_DIR=/tmp/localstack/data
+      - DATA_DIR=/var/lib/localstack/data
       - PORT_WEB_UI=8080
       - LAMBDA_DOCKER_NETWORK=localstack-lambda-net
     volumes:
-      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+      - localstack_data:/var/lib/localstack
       - "/var/run/docker.sock:/var/run/docker.sock"
     privileged: true
+
 volumes:
-    localstack_data:
+  localstack_data:
+
 networks:
-    default:
-      name: localstack-lambda-net
+  default:
+    name: localstack-lambda-net

@@ -22,7 +22,7 @@ resource "aws_api_gateway_integration" "hello-integration" {
   http_method             = aws_api_gateway_method.hello-method.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.hello_fc.invoke_arn
+  uri                     = var.lambda_invoke_arn
 }
 
 resource "aws_api_gateway_method" "proxy_root" {
@@ -39,7 +39,7 @@ resource "aws_api_gateway_integration" "lambda_root" {
 
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.hello_fc.invoke_arn
+  uri                     = var.lambda_invoke_arn
 }
 
 resource "aws_api_gateway_deployment" "hello-deployment" {
@@ -48,13 +48,18 @@ resource "aws_api_gateway_deployment" "hello-deployment" {
     aws_api_gateway_integration.hello-integration,
     aws_api_gateway_integration.lambda_root
   ]
-  stage_name = "test"
+}
+
+resource "aws_api_gateway_stage" "hello-stage" {
+  rest_api_id   = aws_api_gateway_rest_api.hello-api.id
+  deployment_id = aws_api_gateway_deployment.hello-deployment.id
+  stage_name    = "test"
 }
 
 resource "aws_lambda_permission" "lambda_permission" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.hello_fc.function_name
+  function_name = var.lambda_name
   principal     = "apigateway.amazonaws.com"
 
 

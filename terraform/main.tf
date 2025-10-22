@@ -1,10 +1,16 @@
-# terraform {
-#     backend "remote" {
-#     hostname = "app.terraform.io"
-#     organization = "ruisecoa"
+module "lambda" {
+  source = "./lambda_module"
 
-#     workspaces {
-#       name = "my-app-prod"
-#     }
-#   }
-# }
+  lambda_name = "test_lambda"
+  filename = "test_lambda"
+}
+
+
+module "api" {
+  source = "./api_module"
+
+  lambda_name = "test_lambda"
+  lambda_invoke_arn = module.lambda.lambda_arn
+
+  depends_on = [ module.lambda ]
+}
