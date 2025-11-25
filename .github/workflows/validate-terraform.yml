@@ -1,0 +1,103 @@
+name: Validate Terraform (tflint + conftest)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  tflint:
+    name: TFLint (Terraform linter)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install deps (wget, unzip)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y wget unzip
+
+      - name: Install TFLint
+        run: |
+          TFLINT_VERSION="0.45.0"
+          echo "Installing tflint ${TFLINT_VERSION}..."
+          wget -qO /tmp/tflint.zip https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_linux_amd64.zip
+          sudo unzip -o /tmp/tflint.zip -d /usr/local/bin
+          sudo chmod +x /usr/local/bin/tflint
+          tflint --version
+
+      - name: Run TFLint
+        working-directory: terraform
+        run: |
+          # Initialize any tflint plugins
+          tflint --init || true
+          tflint || exit 1
+
+  conftest:
+    name: Conftest (policy checks)
+    runs-on: ubuntu-latest
+    needs: tflint
+    env:
+      TERRAFORM_DIR: terraform
+      # Set SKIP_PLAN_GENERATION to 'true' if your CI should NOT attempt to run 'terraform plan'
+      SKIP_PLAN_GENERATION: 'false'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform CLI
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: '1.6.0'
+
+      - name: Cache terraform modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            terraform/.terraform
+            ~/.terraform.d/plugin-cache
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
+
+      - name: Install Conftest
+        run: |
+          CONFTTEST_VERSION="0.36.0"
+          echo "Installing conftest ${CONFTTEST_VERSION}..."
+          wget -qO - https://github.com/open-policy-agent/conftest/releases/download/v${CONFTTEST_VERSION}/conftest_amd64.tar.gz | sudo tar -C /usr/local/bin -xz
+          sudo chmod +x /usr/local/bin/conftest
+          conftest --version
+
+      - name: Prepare plan.json for Conftest
+        run: |
+          # Use existing committed plan.json if present
+          if [ -f "$GITHUB_WORKSPACE/${{ env.TERRAFORM_DIR }}/plan.json" ]; then
+            echo "Found existing ${TERRAFORM_DIR}/plan.json — using it for conftest."
+            cp "${{ env.TERRAFORM_DIR }}/plan.json" ./plan.json
+            exit 0
+          fi
+
+          if [ "${{ env.SKIP_PLAN_GENERATION }}" = 'true' ]; then
+            echo "SKIP_PLAN_GENERATION=true and no committed plan.json found — skipping conftest checks."
+            exit 0
+          fi
+
+          echo "No committed plan.json found — attempting 'terraform plan' to build one (may require provider credentials)."
+          cd ${{ env.TERRAFORM_DIR }}
+          terraform init -input=false -backend=false
+          terraform plan -out=plan.tfplan -input=false
+          terraform show -json plan.tfplan > plan.json
+          mv plan.json ../plan.json
+
+      - name: Run Conftest against plan.json
+        run: |
+          if [ ! -f ./plan.json ]; then
+            echo "No plan.json available for conftest; nothing to test."
+            exit 0
+          fi
+          echo "Running conftest checks against plan.json using policy folder 'policy/terraform'"
+          conftest test ./plan.json --policy policy/terraform

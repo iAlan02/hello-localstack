@@ -80,3 +80,36 @@ I leaved some other stuffs (just an **API Gateway** integration with the lambda)
 Enjoy (￣y▽￣)╭ Ohohoho.....
 
  ༼ つ ◕_◕ ༽つ
+
+## CI / Validation
+
+This repo includes a GitHub Actions workflow that validates Terraform via two checks on every push to `main` and on pull requests:
+
+- tflint — lints Terraform code for common issues and provider best-practices.
+- conftest — runs Rego policies (in `policy/terraform`) against a Terraform `plan.json` file.
+
+Notes / tips:
+- The workflow looks for `terraform/plan.json` in the repository first. If not present, it attempts to run `terraform init` and `terraform plan` to generate a plan, then converts it to JSON for conftest. Generating a plan in CI may require provider credentials (AWS, etc.) and so can fail if those are not available.
+- If your CI environment doesn't have provider credentials, either commit a generated `terraform/plan.json` into the repo, or configure your CI to supply credentials for plan generation.
+
+Run the same checks locally:
+
+1. tflint
+```bash
+brew install tflint        # macOS
+cd terraform
+tflint
+```
+
+2. conftest
+```bash
+# If you already have a plan.json in the repo:
+conftest test terraform/plan.json --policy policy/terraform
+
+# Or generate one locally (requires credentials for providers if necessary):
+cd terraform
+terraform init -backend=false
+terraform plan -out=plan.tfplan
+terraform show -json plan.tfplan > plan.json
+conftest test ../plan.json --policy ../policy/terraform
+```
